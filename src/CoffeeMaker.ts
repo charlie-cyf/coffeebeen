@@ -1,188 +1,127 @@
 /* tslint:disable:no-console */
+import * as fs from "fs";
 import * as http from "http";
 import {hostname} from "os";
+import "mocha"
 
-enum CoffeeMakerState {
-    Ready,
-    Brewing,
-}
 
-export enum CoffeeKind {
-    Medium,
-    Dark,
-    Decaf,
-}
+export class ParseHTML{
 
-enum LightState {
-    Off,
-    On,
-    Blink,
-}
+    public parseData(){
+        const parse5 = require("parse5");
+        const Jsdom = require("jsdom");
+        const { JSDOM } = Jsdom;
+        const folder = "./HTMlfiles/";
 
-interface Hopper {
-    kind: CoffeeKind;
-    refillLight: LightState;
-    quantity: number;
-}
-
-interface IRequest {
-    Resonpse: {};
-}
-
-/* An IoT coffee marker that orders its own coffee beans and makes maintenance requests */
-export default class CoffeeMaker {
-    private static brewSpeed: number = 100;  // milliseconds per mL
-    private static groundsPerMilliliter: number = 0.06;  // grams
-    private static reservoirCapacity: number = 1000;  // milliliters
-    private static hopperCapacity: number = 1000;  // grams
-
-    private maintenanceLight: LightState;
-    private quantityBrewed: number;
-    private serialNumber: string;
-    private state: CoffeeMakerState;
-
-    private hoppers: Hopper[];
-
-    constructor() {
-        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        for (let i = 0; i < 12; i++) {
-            this.serialNumber += chars.charAt(Math.floor(Math.random() * chars.length));
-        }
-        this.state = CoffeeMakerState.Ready;
-        const initHopper = {refillLight: LightState.Off, quantity: CoffeeMaker.hopperCapacity};
-        this.hoppers = [
-            Object.assign({kind: CoffeeKind.Medium}, initHopper),
-            Object.assign({kind: CoffeeKind.Dark}, initHopper),
-            Object.assign({kind: CoffeeKind.Decaf}, initHopper),
-        ];
-        this.quantityBrewed = 0;
-    }
-
-    /**
-     * Brews coffee. If the hoppers go below 30% capacity, orders more beans. After brewing 10L of coffee, makes a
-     * maintenance request.
-     * @param amount The amount of coffee to brew in milliliters.
-     * @param kind The type of coffee to brew.
-     */
-    public brew(amount: number, kind: CoffeeKind) {
-        if (this.state !== CoffeeMakerState.Ready) {
-            throw new Error("Not ready to brew coffee.");
-        }
-        // Heat water
-        if (amount > CoffeeMaker.reservoirCapacity) {
-            throw new Error("Sorry, you can't brew more than " + CoffeeMaker.reservoirCapacity + " mL of coffee.");
+        function findCompanyName(obj: any) {
+            const postingDiv = obj.getElementById("postingDiv").getElementsByClassName("table table-bordered")[2];
+            const postingTag = postingDiv.getElementsByTagName("tr")[1].getElementsByTagName("td")[1].innerHTML;
+            return postingTag.trim();
         }
 
-        // Grind coffee
-        const requiredGrounds: number = amount * CoffeeMaker.groundsPerMilliliter;
-        const hopper: Hopper = this.hoppers[kind];
-        if (requiredGrounds > hopper.quantity) {
-            throw new Error("Please add more beans to the hopper.");
+        function findCompanyAddress(obj: any){
+            var addressline1 = "";
+            var addressline2 = "";
+            var city = "";
+            var zipcode = "";
+            var province = "";
+            var country = "";
+            try{
+                const pDiv = obj.getElementById("postingDiv").getElementsByClassName("table table-bordered")[2];
+                const l = pDiv.getElementsByTagName("tr").length;
+                for(var i =1; i< l; i++){
+                    const trele = pDiv.getElementsByTagName("tr")[i];
+                    const td0 = trele.getElementsByTagName("td")[0].getElementsByTagName("strong")[0].innerHTML.trim();
+                    //console.log(td0);
+                    if(td0 === "Address Line 1:"){
+                        addressline1 = trele.getElementsByTagName("td")[1].innerHTML.trim()+"\n";
+                    }
+                    else if (td0 === "Address Line 2:")
+                        addressline2 = trele.getElementsByTagName("td")[1].innerHTML.trim()+"\n";
+                    else if(td0 === "City:"){
+                        city = trele.getElementsByTagName("td")[1].innerHTML.trim()+", ";
+                    }else if (td0 === "Postal Code / Zip Code:")
+                        zipcode = trele.getElementsByTagName("td")[1].innerHTML.trim();
+                    else if (td0 === "Province / State:")
+                        province = trele.getElementsByTagName("td")[1].innerHTML.trim()+", ";
+                    else if (td0 === "Country:")
+                        country = trele.getElementsByTagName("td")[1].innerHTML.trim()+"\n";
+                    else {}
+                    // else if ()
+                }
+            }catch (e) {}
+            return addressline1+addressline2+city+province+country+zipcode;
         }
-        console.log("Starting to brew.");
-        this.state = CoffeeMakerState.Brewing;
-        const brewTime: number = amount * CoffeeMaker.brewSpeed;
-        setTimeout(() => { this.state = CoffeeMakerState.Ready; console.log("Brewing complete"); }, brewTime);
-        hopper.quantity = hopper.quantity - requiredGrounds;
-        let orderPromise;
-        if (hopper.quantity < 0.3 * CoffeeMaker.hopperCapacity) {
-            hopper.refillLight = LightState.On;
-            orderPromise = new Promise<{code: number, body: string}>((resolve, reject) => {
-                const order: string = JSON.stringify({
-                    serialNo: this.serialNumber,
-                    kind,
-                    qty: CoffeeMaker.hopperCapacity - hopper.quantity,
-                });
-                const options: http.RequestOptions = {
-                    hostname: `http://jsonplaceholder.typicode.com/`,
-                    port: 80,
-                    path: `/orders`,
-                    method: `POST`,
-                    headers: {
-                       "Content-Type": `application/json`,
-                       "Content-Length": Buffer.byteLength(order),
-                    },
-                };
 
-                const req = http.request(options, (res) => {
-                    let body: string = "";
-                    res.on(`data`, (chunk) => {
-                        body += chunk.toString();
+        function findHRName(obj:any){
+            const postingDiv = obj.getElementById("postingDiv").getElementsByClassName("table table-bordered")[1];
+            const postingTag = postingDiv.getElementsByTagName("tr")[3].getElementsByTagName("td")[1].innerHTML;
+            return postingTag.trim();
+        }
+
+        function findPeriod(obj:any){
+            let per = "8 months";
+            const postingDiv = obj.getElementById("postingDiv").getElementsByClassName("table table-bordered")[0];
+            const postingTag = postingDiv.getElementsByTagName("tr")[6].getElementsByTagName("td")[1].innerHTML.trim();
+            if (postingTag === "4 months")
+                per = postingTag;
+            return per;
+        }
+
+        function makeCover(companyName:string, address:string, HR:string, period:string){
+            let sulute = HR;
+            if (HR.startsWith("Ms.") || HR.startsWith("Mr.")) {
+                sulute = HR.substring(HR.indexOf(" "));
+                sulute = sulute.substring(sulute.indexOf(" "));
+                sulute = HR.substring(0, 3) + sulute;
+            } else if (HR === "Hiring Manager") {}
+            else
+                sulute = "Ms. "+ HR.substring(HR.indexOf(" "));
+
+
+            return "May 18, 2018\n\n"+ HR +"\n"+ companyName +"\n" + address + "\n" + "Dear " + sulute+":\n" + "\t\t\tRe: Application Software Developer Co-op Position\n\n"+
+                "I am writing to express my keen interest in a "+period+" co-op position with "+companyName+ ". Your posting impressed me a lot because this position sets up different developing and testing works on a variety of "+companyName+" products. It combines my passion for technology with my skills as a team member. I believe my experience in software programming as well as my technical skills qualify me for this position.\n" +
+                "\n" +
+                "Being a programmer for the past two years, I have had the opportunity to work on projects involving test-driven development using Typescript, JUnit test, and programing using Java, and several course projects with C/C++. My most recent project “Insight UBC” is a course information querying machine which I implemented query engine based on EBNF. We start this project with TDD and developed with Node.js. We also use REST to implement Network communications. Besides, this project is tested using Karma and JUnit tests. Other than this project, My passion for programming and teaching myself new things have led me a member of the Microsoft Insider program and UBC ACM club. \n" +
+                "\n" +
+                "I have a strong willingness to learn. In the development of “Insight UBC”, I have learned a new programing language Typescript by myself and successively used it in our project. I am also currently learning Linux on Coursera to make myself more prepared for the future working environment. \n" +
+                "\n" +
+                "I am very excited to learn more about this opportunity and further share how my technical skills will be a great fit at "+ companyName +". Thank you for taking the time to consider my application. I look forward to hearing from you.\n" +
+                "\n" +
+                "Sincerely,\n" +
+                "\n" +
+                "Charlie Chen\n";
+        }
+
+        fs.readdir(folder, (err, files) => {
+            files.forEach(function (file)
+            {
+
+                if(file.endsWith(".html")){
+                    let cover = "";
+                    fs.readFile(folder+file, "utf8", function (err, data) {
+                        const obj =new JSDOM(data);
+                        const objDom = obj.window.document;
+                        const companyName: string = findCompanyName(objDom);
+                        const address: string = findCompanyAddress(objDom);
+                        const HRName: string = findHRName(objDom);
+                        const period: string = findPeriod(objDom);
+                        cover = makeCover(companyName, address, HRName, period);
+                        fs.writeFile("./outpuTxt/"+file.substring(0, file.indexOf("."))+".txt", cover, function (err) {
+                            if(err){
+                                console.log("failed: "+err);
+                            }
+                        });
+
                     });
-                    res.on(`end`, () => {
-                        resolve({code: res.statusCode, body});
-                    });
-                });
-                req.on(`error`, (err) => {
-                    hopper.refillLight = LightState.Blink;
-                    resolve({ code: 500, body: err.message });
-                });
-                req.write(order);
-                req.end();
+
+
+                }
             });
-        }
-
-        // Brew
-        this.quantityBrewed += amount;
-        let maintenancePromise;
-        if (this.quantityBrewed > 10000) {
-            this.maintenanceLight = LightState.On;
-            maintenancePromise = new Promise<{code: number, body: string}>((resolve, reject) => {
-                const reqBody: string = JSON.stringify({serialNo: this.serialNumber});
-                const options: http.RequestOptions = {
-                    hostname: `http://jsonplaceholder.typicode.com/`,
-                    port: 80,
-                    path: `/maintenanceRequests`,
-                    method: `POST`,
-                    headers: {
-                       "Content-Type": `application/json`,
-                       "Content-Length": Buffer.byteLength(reqBody),
-                    },
-                };
-
-                const req = http.request(options, (res) => {
-                    let body: string = "";
-                    res.on(`data`, (chunk) => {
-                        body += chunk.toString();
-                    });
-                    res.on(`end`, () => {
-                        resolve({code: res.statusCode, body});
-                    });
-                });
-                req.on(`error`, (err) => {
-                    this.maintenanceLight = LightState.Blink;
-                    resolve({ code: 500, body: err.message });
-                });
-                req.write(reqBody);
-                req.end();
-            });
-        }
+        });
     }
 
-    /**
-     * Add coffee beans to a hopper.
-     * @param amount Amount of beans to add to the hopper in grams.
-     * @param kind The type of coffee bean to add.
-     */
-    public addBeans(amount: number, kind: CoffeeKind) {
-        const hopper: Hopper = this.hoppers[kind];
-        if (this.state !== CoffeeMakerState.Ready) {
-            throw new Error("Beans can't be added when the coffee maker is not ready.");
-        }
-        if (hopper.quantity + amount > CoffeeMaker.hopperCapacity) {
-            throw new Error("The amount of beans added exceeds hopper capacity.");
-        }
 
-        hopper.quantity += amount;
-        hopper.refillLight = LightState.Off;
-    }
-
-    /**
-     * Reset the quantity brewed counter and turn off the maintenance light.
-     */
-    public reset() {
-        this.quantityBrewed = 0;
-        this.maintenanceLight = LightState.Off;
-    }
 }
-    // mprivate post(hostname: string )
+
+
