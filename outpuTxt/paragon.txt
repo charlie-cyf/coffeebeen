@@ -1,0 +1,21 @@
+May 18, 2018
+
+Victor Jang
+Paragon Testing Enterprises Inc.
+2925 Virtual Way #110
+Vancouver, BC, Canada
+V5M 4X5
+Dear Ms.  Jang:
+			Re: Application Software Developer Co-op Position
+
+I am writing to express my keen interest in a 8 months co-op position with Paragon Testing Enterprises Inc.. Your posting impressed me a lot because this position sets up different developing and testing works on a variety of Paragon Testing Enterprises Inc. products. It combines my passion for technology with my skills as a team member. I believe my experience in software programming as well as my technical skills qualify me for this position.
+
+Being a programmer for the past two years, I have had the opportunity to work on projects involving test-driven development using Typescript, JUnit test, and programing using Java, and several course projects with C/C++. My most recent project “Insight UBC” is a course information querying machine which I implemented query engine based on EBNF. We start this project with TDD and developed with Node.js. We also use REST to implement Network communications. Besides, this project is tested using Karma and JUnit tests. Other than this project, My passion for programming and teaching myself new things have led me a member of the Microsoft Insider program and UBC ACM club. 
+
+I have a strong willingness to learn. In the development of “Insight UBC”, I have learned a new programing language Typescript by myself and successively used it in our project. I am also currently learning Linux on Coursera to make myself more prepared for the future working environment. 
+
+I am very excited to learn more about this opportunity and further share how my technical skills will be a great fit at Paragon Testing Enterprises Inc.. Thank you for taking the time to consider my application. I look forward to hearing from you.
+
+Sincerely,
+
+Charlie Chen
