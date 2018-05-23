@@ -1,0 +1,92 @@
+.sidebar--fixed--right.is--visible {
+	right: 0%;
+	visibility: visible;
+	transition: right 400ms ease-out;
+}
+
+.sidebar--fixed--right {
+	position: fixed;
+	visibility: hidden;
+	top: 0;
+	right: -100%;
+	bottom: 0;
+	width: 40%;
+	background: #fff;
+	box-shadow: -2px 0px 2px 0px rgba(0, 0, 0, 0.2);
+	transition: right 400ms ease-out;
+	z-index: 9999;
+}
+.sidebar--fixed--right__title {
+	padding-left: 12px;
+	max-width: 80%;
+	color: #444;
+}
+/* This class is only for content from the ck editor */
+.sidebar--fixed--right__content {
+	color: #444;
+	padding:12px;
+	font-size:16px;
+	line-height:1.5;
+}
+.sidebar--btn--close {
+	background: #f1f1f1;
+	border: none;
+	width: 44px;
+	height: 44px;
+	border-radius: 2px;
+	position: absolute;
+	top: 12px;
+	right: 12px;
+}
+
+.toggle__container {
+  width: 120px;
+  background: white;
+  height: 24px;
+  border-radius: 2px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.toggle__switch {
+  width: 50%;
+  height: 40px;
+  display: inline-block;
+  background: #005BAA;
+  transition: all 200ms ease-in-out;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.toggle__switch.is--on {
+  transition: all 200ms ease-in-out;
+  transform: translate(100%, 0px);
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
+.toggle__yes, .toggle__no {
+  position: absolute;
+  transition: all 200ms ease-in-out;
+  font-size: 14px;
+  top: -22px;
+  color: white;
+  transform: translate(0%, 120%);
+}
+
+.toggle__yes.is--on, .toggle__no.is--on {
+  transform: translate(0%, 0%);
+  transition: all 200ms ease-in-out;
+}
+
+.toggle__yes {
+  right: 76px;
+}
+
+.toggle__no {
+  left: 79px;
+}
